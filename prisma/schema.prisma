@@ -1,0 +1,53 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Project {
+  id              String   @id @default(cuid())
+  name            String
+  slackChannelId  String   @unique @map("slack_channel_id")
+  vertical        String   // CRYPTO, APP, COMMERCE
+  description     String?
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  updates Update[]
+
+  @@map("projects")
+}
+
+model Update {
+  id        String   @id @default(cuid())
+  projectId String   @map("project_id")
+  userId    String   @map("user_id")
+  userName  String?  @map("user_name")
+  text      String
+  createdAt DateTime @default(now()) @map("created_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@map("updates")
+}
+
+model User {
+  id          String  @id @default(cuid())
+  slackUserId String  @unique @map("slack_user_id")
+  name        String?
+  email       String?
+  avatar      String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+// Vertical types: CRYPTO, APP, COMMERCE
+
