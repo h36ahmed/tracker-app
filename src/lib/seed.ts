@@ -2,40 +2,46 @@ import { prisma } from "./prisma";
 
 const sampleProjects = [
   {
-    name: "Crypto Wallet V2",
-    slackChannelId: "C1234567890",
+    name: "Coinbase Wallet",
+    slackChannelId: "C09CYDUH6QM",
     vertical: "CRYPTO",
     description: "Next-generation crypto wallet with DeFi integration",
   },
   {
-    name: "Mobile Banking App",
-    slackChannelId: "C2345678901",
+    name: "Bolt Financial",
+    slackChannelId: "C09CYDZTV7X",
     vertical: "APP",
-    description: "Modern mobile banking application",
+    description: "Modern mobile banking application for Bolt Financial",
   },
   {
-    name: "E-commerce Platform",
-    slackChannelId: "C3456789012",
+    name: "Alo Fitness",
+    slackChannelId: "C09DTS9N88Y",
     vertical: "COMMERCE",
-    description: "Multi-vendor e-commerce platform",
+    description: "Fitness brand that sells workout clothes",
   },
   {
-    name: "NFT Marketplace",
-    slackChannelId: "C4567890123",
+    name: "Coinsquare Marketplace",
+    slackChannelId: "C09CL759URM",
     vertical: "CRYPTO",
     description: "Decentralized NFT trading platform",
   },
   {
-    name: "Food Delivery App",
-    slackChannelId: "C5678901234",
+    name: "Instacart",
+    slackChannelId: "C09D517HUUC",
     vertical: "APP",
     description: "On-demand food delivery mobile app",
   },
   {
-    name: "B2B Commerce Portal",
-    slackChannelId: "C6789012345",
+    name: "OVO",
+    slackChannelId: "C09CW419R35",
     vertical: "COMMERCE",
-    description: "Enterprise B2B commerce solution",
+    description: "Merch by October's Very Own",
+  },
+  {
+    name: "Skims",
+    slackChannelId: "C09CL70QHRV",
+    vertical: "COMMERCE",
+    description: "Premium lingerie brand",
   },
 ];
 
