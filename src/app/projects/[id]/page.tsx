@@ -43,7 +43,9 @@ async function getProject(id: string) {
   const latestUpdate = project.updates[0];
   const healthStatus = calculateHealthStatus(
     latestUpdate?.createdAt || null,
-    latestUpdate?.text
+    latestUpdate?.text,
+    latestUpdate?.clientScore,
+    latestUpdate?.projectScore
   );
   const daysSinceLastUpdate = getDaysSinceUpdate(
     latestUpdate?.createdAt || null
@@ -145,7 +147,23 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                         <Calendar className="h-4 w-4 ml-2" />
                         <span>{formatRelativeTime(update.createdAt)}</span>
                       </div>
-                      <p className="text-sm">{update.text}</p>
+                      <p className="text-sm mb-2">{update.text}</p>
+                      {(update.clientScore || update.projectScore) && (
+                        <div className="flex gap-4 text-xs text-muted-foreground">
+                          {update.clientScore && (
+                            <span>
+                              <strong>Client Score:</strong>{" "}
+                              {update.clientScore}/5
+                            </span>
+                          )}
+                          {update.projectScore && (
+                            <span>
+                              <strong>Project Score:</strong>{" "}
+                              {update.projectScore}/5
+                            </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -187,6 +205,32 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
                     : `${project.daysSinceLastUpdate} days`}
                 </div>
               </div>
+              {project.latestUpdate &&
+                (project.latestUpdate.clientScore ||
+                  project.latestUpdate.projectScore) && (
+                  <>
+                    {project.latestUpdate.clientScore && (
+                      <div>
+                        <div className="text-sm font-medium">
+                          Last Client Score
+                        </div>
+                        <div className="text-sm text-muted-foreground mt-1">
+                          {project.latestUpdate.clientScore}/5
+                        </div>
+                      </div>
+                    )}
+                    {project.latestUpdate.projectScore && (
+                      <div>
+                        <div className="text-sm font-medium">
+                          Last Project Score
+                        </div>
+                        <div className="text-sm text-muted-foreground mt-1">
+                          {project.latestUpdate.projectScore}/5
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
             </CardContent>
           </Card>
 

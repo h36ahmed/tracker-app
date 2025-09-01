@@ -65,8 +65,7 @@ export default async function AdminPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline">Add Project</Button>
-          <Button>Sync Slack</Button>
+          <Button>Add Project</Button>
         </div>
       </div>
 
@@ -98,8 +97,8 @@ export default async function AdminPage() {
         {stats.projectsByVertical.map((vertical) => (
           <Card key={vertical.vertical}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                {vertical.vertical.toLowerCase()} Projects
+              <CardTitle className="text-sm font-medium capitalize">
+                {vertical.vertical} Projects
               </CardTitle>
               <div className="h-4 w-4 text-muted-foreground">
                 {getVerticalEmoji(vertical.vertical)}
@@ -109,9 +108,6 @@ export default async function AdminPage() {
               <div className="text-2xl font-bold">
                 {vertical._count.vertical}
               </div>
-              <p className="text-xs text-muted-foreground">
-                {vertical.vertical.toLowerCase()} vertical
-              </p>
             </CardContent>
           </Card>
         ))}
@@ -147,35 +143,6 @@ export default async function AdminPage() {
                   </div>
                 </div>
               ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>System Status</CardTitle>
-            <CardDescription>
-              Current system health and configuration
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Database</span>
-                <Badge variant="success">Connected</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Slack Integration</span>
-                <Badge variant="warning">Demo Mode</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Last Sync</span>
-                <span className="text-sm text-muted-foreground">Never</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm font-medium">Environment</span>
-                <Badge variant="outline">Development</Badge>
-              </div>
             </div>
           </CardContent>
         </Card>

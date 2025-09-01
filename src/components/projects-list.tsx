@@ -1,72 +1,82 @@
-import Link from 'next/link'
-import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { prisma } from '@/lib/prisma'
-import { calculateHealthStatus, formatRelativeTime, getDaysSinceUpdate } from '@/lib/utils'
-import { ProjectHealth, HealthStatus } from '@/types'
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { prisma } from "@/lib/prisma";
+import {
+  calculateHealthStatus,
+  formatRelativeTime,
+  getDaysSinceUpdate,
+} from "@/lib/utils";
+import { ProjectHealth, HealthStatus } from "@/types";
 
 async function getProjectsWithHealth(): Promise<ProjectHealth[]> {
   const projects = await prisma.project.findMany({
     include: {
       updates: {
-        orderBy: { createdAt: 'desc' },
+        orderBy: { createdAt: "desc" },
         take: 1,
       },
     },
-  })
+  });
 
-  return projects.map(project => {
-    const latestUpdate = project.updates[0]
+  return projects.map((project) => {
+    const latestUpdate = project.updates[0];
     const healthStatus = calculateHealthStatus(
       latestUpdate?.createdAt || null,
-      latestUpdate?.text
-    )
-    const daysSinceLastUpdate = getDaysSinceUpdate(latestUpdate?.createdAt || null)
+      latestUpdate?.text,
+      latestUpdate?.clientScore,
+      latestUpdate?.projectScore
+    );
+    const daysSinceLastUpdate = getDaysSinceUpdate(
+      latestUpdate?.createdAt || null
+    );
 
     return {
       ...project,
       latestUpdate,
       healthStatus,
       daysSinceLastUpdate,
-    }
-  })
+    };
+  });
 }
 
 function getHealthBadgeVariant(status: HealthStatus) {
   switch (status) {
-    case 'GREEN':
-      return 'success'
-    case 'YELLOW':
-      return 'warning'
-    case 'RED':
-      return 'danger'
+    case "GREEN":
+      return "success";
+    case "YELLOW":
+      return "warning";
+    case "RED":
+      return "danger";
     default:
-      return 'secondary'
+      return "secondary";
   }
 }
 
 function getVerticalEmoji(vertical: string) {
   switch (vertical) {
-    case 'CRYPTO':
-      return '₿'
-    case 'APP':
-      return '📱'
-    case 'COMMERCE':
-      return '🛒'
+    case "CRYPTO":
+      return "₿";
+    case "APP":
+      return "📱";
+    case "COMMERCE":
+      return "🛒";
     default:
-      return '📊'
+      return "📊";
   }
 }
 
 export async function ProjectsList() {
-  const projects = await getProjectsWithHealth()
+  const projects = await getProjectsWithHealth();
 
   if (projects.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-muted-foreground">No projects found. Add some projects to get started.</p>
+        <p className="text-muted-foreground">
+          No projects found. Add some projects to get started.
+        </p>
       </div>
-    )
+    );
   }
 
   return (
@@ -93,7 +103,7 @@ export async function ProjectsList() {
                 {project.latestUpdate ? (
                   <div className="space-y-1">
                     <div className="text-sm">
-                      <strong>Last Update:</strong>{' '}
+                      <strong>Last Update:</strong>{" "}
                       {formatRelativeTime(project.latestUpdate.createdAt)}
                     </div>
                     <div className="text-sm text-muted-foreground line-clamp-2">
@@ -111,6 +121,5 @@ export async function ProjectsList() {
         </Link>
       ))}
     </div>
-  )
+  );
 }
-
