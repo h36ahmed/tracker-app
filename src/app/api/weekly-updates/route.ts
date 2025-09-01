@@ -64,6 +64,10 @@ async function handleWeeklyUpdate(update: WeeklyUpdateInfo) {
     });
 
     // Create update
+    const createdAt = isNaN(parseFloat(timestamp))
+      ? new Date(timestamp) // ISO string format
+      : new Date(parseFloat(timestamp) * 1000); // Unix timestamp in seconds
+
     await prisma.update.create({
       data: {
         projectId: project.id,
@@ -71,7 +75,7 @@ async function handleWeeklyUpdate(update: WeeklyUpdateInfo) {
         userName: name,
         text: weekly_updates,
         score: scoreNumber,
-        createdAt: new Date(parseFloat(timestamp) * 1000),
+        createdAt,
       },
     });
 
