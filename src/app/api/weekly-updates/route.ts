@@ -70,12 +70,11 @@ async function handleWeeklyUpdate(update: WeeklyUpdateInfo) {
       },
     });
 
-    // Create update
-    const createdAt = isNaN(parseFloat(timestamp))
-      ? new Date(timestamp) // ISO string format
-      : new Date(parseFloat(timestamp) * 1000); // Unix timestamp in seconds
+    // Create update -
+    console.log("timestamp", timestamp);
+    const createdAt = new Date(timestamp); // Unix timestamp in seconds
 
-    console.log(createdAt);
+    console.log("createdAt", createdAt);
 
     await prisma.update.create({
       data: {
