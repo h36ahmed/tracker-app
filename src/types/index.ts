@@ -37,3 +37,15 @@ export interface SlackMessage {
   text: string;
   timestamp: string;
 }
+
+export interface WeeklyUpdateInfo {
+  user_id: string;
+  user_name?: string;
+  profile_image_url?: string;
+  channel_id: string;
+  project: string;
+  weekly_updates: string;
+  project_score: string;
+  score?: string; // Score between 1-5 (inclusive)
+  timestamp: string;
+}

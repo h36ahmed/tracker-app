@@ -30,8 +30,8 @@ model Update {
   userId    String   @map("user_id")
   userName  String?  @map("user_name")
   text      String
+  score     Int?
   createdAt DateTime @default(now()) @map("created_at")
-
   project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@map("updates")
