@@ -33,11 +33,18 @@ async function handleWeeklyUpdate(update: WeeklyUpdateInfo) {
     channel_id: channel,
     profile_image_url,
     weekly_updates,
-    project_score: score,
+    project_score,
+    client_score,
     timestamp,
   } = update;
 
-  const scoreNumber = score ? Math.max(1, Math.min(5, parseInt(score))) : 5;
+  // Parse and validate scores (1-5 range)
+  const projectScoreNumber = project_score
+    ? Math.max(1, Math.min(5, parseInt(project_score)))
+    : null;
+  const clientScoreNumber = client_score
+    ? Math.max(1, Math.min(5, parseInt(client_score)))
+    : null;
 
   try {
     // Find project by Slack channel ID
@@ -68,13 +75,16 @@ async function handleWeeklyUpdate(update: WeeklyUpdateInfo) {
       ? new Date(timestamp) // ISO string format
       : new Date(parseFloat(timestamp) * 1000); // Unix timestamp in seconds
 
+    console.log(createdAt);
+
     await prisma.update.create({
       data: {
         projectId: project.id,
         userId: user,
         userName: name,
         text: weekly_updates,
-        score: scoreNumber,
+        clientScore: clientScoreNumber,
+        projectScore: projectScoreNumber,
         createdAt,
       },
     });

@@ -25,14 +25,15 @@ model Project {
 }
 
 model Update {
-  id        String   @id @default(cuid())
-  projectId String   @map("project_id")
-  userId    String   @map("user_id")
-  userName  String?  @map("user_name")
-  text      String
-  score     Int?
-  createdAt DateTime @default(now()) @map("created_at")
-  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  id           String   @id @default(cuid())
+  projectId    String   @map("project_id")
+  userId       String   @map("user_id")
+  userName     String?  @map("user_name")
+  text         String
+  clientScore  Int?     @map("client_score")
+  projectScore Int?     @map("project_score")
+  createdAt    DateTime @default(now()) @map("created_at")
+  project      Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
   @@map("updates")
 }

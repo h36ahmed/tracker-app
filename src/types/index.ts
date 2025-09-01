@@ -43,9 +43,8 @@ export interface WeeklyUpdateInfo {
   user_name?: string;
   profile_image_url?: string;
   channel_id: string;
-  project: string;
   weekly_updates: string;
-  project_score: string;
-  score?: string; // Score between 1-5 (inclusive)
+  project_score?: string; // Project score between 1-5 (inclusive)
+  client_score?: string; // Client score between 1-5 (inclusive)
   timestamp: string;
 }
