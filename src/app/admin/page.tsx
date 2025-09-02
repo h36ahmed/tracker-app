@@ -7,6 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { AddProjectDialog } from "@/components/add-project-dialog";
 import { prisma } from "@/lib/prisma";
 import { formatRelativeTime } from "@/lib/utils";
 import { Vertical } from "@/types";
@@ -65,7 +66,7 @@ export default async function AdminPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <Button>Add Project</Button>
+          <AddProjectDialog />
         </div>
       </div>
 
