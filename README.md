@@ -1,21 +1,26 @@
-# Client Health Dashboard
+# Lazer Projects - Client Health Dashboard
 
-A modern web application that tracks client project health by monitoring developer updates from Slack channels. Built with Next.js, TypeScript, Tailwind CSS, and Prisma.
+A modern web application that tracks client project health by monitoring developer updates from Slack channels. Built with Next.js, TypeScript, Tailwind CSS, and Prisma with advanced scoring and health analytics.
 
 ## Features
 
-- **Real-time Project Monitoring**: Track project health status (Green/Yellow/Red) based on update frequency and content
-- **Slack Integration**: Automatically capture developer updates from Slack channels
-- **Modern UI**: Clean, responsive dashboard built with ShadCN UI components
-- **Project Management**: View detailed project information and update history
-- **Admin Dashboard**: Manage projects and monitor system health
+- **Real-time Project Monitoring**: Track project health status (Green/Yellow/Red) based on update frequency, content analysis, and scoring
+- **Advanced Health Analytics**: Project health considers client scores (1-5), project scores (1-5), update frequency, and sentiment analysis
+- **Slack Integration**: Receive weekly developer updates with scoring via webhook endpoint
+- **Project Management**: Add, view, and manage projects with a modern modal interface
+- **Score Tracking**: Monitor client and project scores over time with historical data
+- **Modern UI**: Clean, responsive dashboard built with Radix UI components and Tailwind CSS
+- **Admin Dashboard**: Complete project management with statistics and recent updates
+- **Toast Notifications**: Real-time feedback for all user actions
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14 (App Router), TypeScript, Tailwind CSS
-- **UI Components**: ShadCN UI (Radix UI primitives)
+- **Frontend**: Next.js 15 (App Router), React 19, TypeScript, Tailwind CSS
+- **UI Components**: Radix UI primitives with custom components
+- **Forms**: Server Actions with useFormState for modern form handling
 - **Database**: PostgreSQL with Prisma ORM
-- **Integration**: Slack Events API
+- **Integration**: Slack webhook endpoint for weekly updates with scoring support
+- **Notifications**: Radix UI Toast system
 - **Deployment**: Vercel-ready
 
 ## Getting Started
@@ -47,10 +52,7 @@ cp .env.example .env
 Edit `.env` with your database and Slack credentials:
 ```env
 DATABASE_URL="postgresql://username:password@localhost:5432/client_health_dashboard"
-SLACK_BOT_TOKEN="xoxb-your-bot-token"
-SLACK_SIGNING_SECRET="your-signing-secret"
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-nextauth-secret"
+SERVER_API_KEY=
 ```
 
 4. Set up the database:
@@ -74,28 +76,56 @@ Visit [http://localhost:3000](http://localhost:3000) to see the dashboard.
 
 ## Health Status Logic
 
-Projects are automatically assigned health status based on:
+Projects are automatically assigned health status based on multiple factors:
 
-- **🟢 Green**: Updated within last 2 days
-- **🟡 Yellow**: Updated 3-5 days ago
-- **🔴 Red**: No update in >5 days OR contains keywords like "blocker", "delay", "issue"
+### Scoring Priority (Highest Priority)
+- **🔴 Red**: Client score ≤ 2 OR Project score ≤ 2
+- **🟡 Yellow**: Client score = 3 OR Project score = 3
+- **🟢 Green**: Client score ≥ 4 AND Project score ≥ 4
 
-## Slack Integration
+### Content Analysis
+- **🔴 Red**: Updates containing keywords like "blocker", "delay", "issue", "problem", "stuck", "blocked"
 
-### Setting up Slack App
+### Time-based Status (Fallback)
+- **🟢 Green**: Updated within last 5 days
+- **🟡 Yellow**: Updated 6-10 days ago
+- **🔴 Red**: No update in >10 days
 
-1. Create a new Slack app at [api.slack.com](https://api.slack.com/apps)
-2. Enable Event Subscriptions and set Request URL to: `https://your-domain.com/api/slack/events`
-3. Subscribe to `message.channels` bot event
-4. Install app to your workspace
-5. Add bot to project channels
+### Score Display
+- Client scores and project scores (1-5 scale) are displayed in:
+  - Recent updates section
+  - Project health dashboard
+  - Individual project pages
 
 ### Channel Mapping
 
-Map Slack channels to projects in the database:
+Add projects through the admin interface or map Slack channels to projects in the database:
+
+**Via Admin UI (Recommended):**
+1. Go to `/admin`
+2. Click "Add Project"
+3. Fill out the form with project details
+4. Submit to create the project
+
+**Via Database:**
 ```sql
-INSERT INTO projects (name, slack_channel_id, vertical)
-VALUES ('My Project', 'C1234567890', 'APP');
+INSERT INTO projects (name, slack_channel_id, vertical, description)
+VALUES ('My Project', 'C1234567890', 'APP', 'Mobile app development project');
+```
+
+### Weekly Update Format
+
+The `/api/weekly-updates` endpoint expects JSON data with the following structure:
+```json
+{
+  "user_id": "U1234567890",
+  "user_name": "John Doe",
+  "channel_id": "C1234567890",
+  "weekly_updates": "Completed user authentication feature. Fixed API rate limiting issues.",
+  "project_score": "4",
+  "client_score": "5",
+  "timestamp": "2024-01-15T10:30:00Z"
+}
 ```
 
 ## Project Structure
@@ -103,24 +133,38 @@ VALUES ('My Project', 'C1234567890', 'APP');
 ```
 src/
 ├── app/                    # Next.js App Router pages
-│   ├── api/slack/         # Slack webhook endpoints
+│   ├── api/               # API routes
+│   │   └── weekly-updates/ # Weekly update webhook endpoint
 │   ├── projects/[id]/     # Project detail pages
-│   └── admin/             # Admin dashboard
+│   ├── admin/             # Admin dashboard
+│   └── page.tsx           # Main dashboard
 ├── components/            # Reusable UI components
-│   └── ui/               # ShadCN UI components
+│   ├── ui/               # Radix UI components
+│   ├── add-project-form.tsx    # Project creation form
+│   ├── add-project-dialog.tsx  # Modal wrapper
+│   └── projects-list.tsx       # Project listing
 ├── lib/                  # Utilities and configurations
+│   ├── actions/          # Server actions
+│   │   └── projects.ts   # Project CRUD operations
 │   ├── prisma.ts         # Database client
 │   ├── utils.ts          # Helper functions
 │   └── seed.ts           # Database seeding
+├── hooks/                # Custom React hooks
+│   └── use-toast.ts      # Toast notification hook
 ├── types/                # TypeScript type definitions
 └── scripts/              # Utility scripts
 ```
 
 ## Database Schema
 
-- **Projects**: Store project information and Slack channel mapping
-- **Updates**: Developer updates from Slack with timestamps
-- **Users**: Slack user information
+- **Projects**: Store project information, Slack channel mapping, vertical classification, and descriptions
+- **Updates**: Developer updates from Slack with timestamps, client scores (1-5), and project scores (1-5)
+- **Users**: Slack user information including names and avatars
+
+### Key Fields
+- **Projects**: `id`, `name`, `slackChannelId`, `vertical` (CRYPTO/APP/COMMERCE), `description`
+- **Updates**: `id`, `projectId`, `userId`, `text`, `clientScore`, `projectScore`, `createdAt`
+- **Users**: `id`, `slackUserId`, `name`, `email`, `avatar`
 
 ## Deployment
 
@@ -132,11 +176,7 @@ src/
 
 ### Database Setup
 
-For production, use a managed PostgreSQL service like:
-- Supabase (recommended)
-- Neon
-- PlanetScale
-- Railway
+I used Prisma DB hosting (postgres)
 
 ## Development
 
@@ -156,18 +196,36 @@ For production, use a managed PostgreSQL service like:
 
 This project follows strict TypeScript and code quality standards:
 - ESLint for code linting
-- Prettier for code formatting
 - TypeScript strict mode enabled
-- Clean code principles
+- Clean code principles following established cursor rules
+- Server-first architecture with Server Actions
+- Proper error handling and validation
+- Accessible UI components with Radix UI
+- Mobile-first responsive design
 
-## Contributing
+## Key Features Walkthrough
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Run tests and linting
-5. Submit a pull request
+### Dashboard (`/`)
+- **Project Statistics**: Real-time counts of total, healthy, and at-risk projects
+- **Projects Overview**: Grid view of all projects with health status badges
+- **Health Indicators**: Visual status with emojis for each vertical (₿ Crypto, 📱 App, 🛒 Commerce)
 
-## License
+### Admin Dashboard (`/admin`)
+- **Add Project**: Modal form with validation for creating new projects
+- **Project Statistics**: Comprehensive stats including projects by vertical
+- **Recent Updates**: Timeline of latest developer updates across all projects
+- **Toast Notifications**: Real-time feedback for all actions
 
-MIT License - see LICENSE file for details.
+### Project Details (`/projects/[id]`)
+- **Project Information**: Complete project details with health status
+- **Recent Updates**: Chronological list of updates with scores displayed
+- **Health Metrics**: Last update time, days since update, and latest scores
+- **Score History**: Client and project scores from recent updates
+
+### Add Project Flow
+1. Click "Add Project" in admin dashboard
+2. Fill required fields: Name, Slack Channel ID, Vertical
+3. Optional: Add project description
+4. Server-side validation ensures unique Slack Channel IDs
+5. Success/error feedback via toast notifications
+6. Automatic page refresh shows new project
